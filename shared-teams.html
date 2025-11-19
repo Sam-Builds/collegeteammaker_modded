@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shared Teams - College Team Maker</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=M+PLUS+1p:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <h1>スハン & チランタン<br><span class="subtitle">(Suhan & Chiranthan)</span></h1>
+        
+        <div class="section">
+            <h2>SHARED TEAMS</h2>
+            <div class="student-search">
+                <input type="text" id="searchInput" placeholder="SEARCH STUDENT BY NAME OR ID">
+                <button onclick="searchStudent()">SEARCH</button>
+                <div id="searchResult"></div>
+            </div>
+            <div id="teamsDisplay"></div>
+        </div>
+    </div>
+
+    <!-- Watermark -->
+    <div class="watermark">Prime Creation<br><span class="watermark-jp">(プライムクリエーション)</span></div>
+
+    <!-- Sakura Petals -->
+    <div class="sakura-container">
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+        <div class="sakura">🌸</div>
+    </div>
+
+    <script>
+        const branchNames = {
+            aiml: 'AI/ML',
+            cse: 'CSE',
+            ds: 'Data Science',
+            ise: 'ISE',
+            iot: 'IoT',
+            ece: 'ECE',
+            mechanical: 'Mechanical',
+            eee: 'EEE',
+            civil: 'Civil'
+        };
+
+        // Get shared data from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sharedData = urlParams.get('data');
+        
+        console.log('Shared data:', sharedData);
+        
+        if (sharedData) {
+            try {
+                const decodedData = JSON.parse(atob(sharedData));
+                console.log('Decoded data:', decodedData);
+                
+                if (decodedData && decodedData.teams && decodedData.teams.length > 0) {
+                    displaySharedTeams(decodedData.teams);
+                } else {
+                    document.getElementById('teamsDisplay').innerHTML = '<p>No teams found in shared data</p>';
+                }
+            } catch (error) {
+                console.error('Error decoding data:', error);
+                document.getElementById('teamsDisplay').innerHTML = '<p>Invalid share link - ' + error.message + '</p>';
+            }
+        } else {
+            document.getElementById('teamsDisplay').innerHTML = '<p>No team data found in URL</p>';
+        }
+
+        function displaySharedTeams(teams) {
+            const container = document.getElementById('teamsDisplay');
+            container.innerHTML = '';
+            
+            teams.forEach((team, index) => {
+                const teamDiv = document.createElement('div');
+                teamDiv.className = 'team';
+                teamDiv.id = `team-${index}`;
+                
+                const captain = team.find(student => student.isCaptain);
+                const captainName = captain ? `(Capt. ${captain.name})` : '';
+                
+                teamDiv.innerHTML = `
+                    <div class="team-header">
+                        <span>Team ${index + 1}</span>
+                        <span class="captain-name">${captainName}</span>
+                    </div>
+                    <div class="team-members">
+                        ${team.map(student => `
+                            <div class="member ${student.isCaptain ? 'captain' : ''} ${student.gender === 'Male' ? 'male' : student.gender === 'Female' ? 'female' : ''}">
+                                <div class="member-content">
+                                    <div class="member-name">${student.name}</div>
+                                    <div class="member-id">${student.campusId}</div>
+                                    <div class="member-branch">${branchNames[student.branch] || student.branch}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(teamDiv);
+            });
+        }
+
+        function searchStudent() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const resultDiv = document.getElementById('searchResult');
+            
+            if (!query) {
+                resultDiv.style.display = 'none';
+                return;
+            }
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedData = urlParams.get('data');
+            
+            if (sharedData) {
+                try {
+                    const decodedData = JSON.parse(atob(sharedData));
+                    let found = false;
+                    
+                    decodedData.teams.forEach((team, teamIndex) => {
+                        team.forEach(member => {
+                            if (member.name.toLowerCase().includes(query) || 
+                                (member.campusId && member.campusId.toLowerCase().includes(query))) {
+                                found = true;
+                                resultDiv.innerHTML = `Found: <strong>${member.name}</strong> (${member.campusId}) in <strong>Team ${teamIndex + 1}</strong>`;
+                                resultDiv.style.display = 'block';
+                                
+                                const teamElement = document.getElementById(`team-${teamIndex}`);
+                                if (teamElement) {
+                                    teamElement.classList.add('search-highlight');
+                                    teamElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                    setTimeout(() => teamElement.classList.remove('search-highlight'), 3000);
+                                }
+                                return;
+                            }
+                        });
+                    });
+                    
+                    if (!found) {
+                        resultDiv.innerHTML = `Student "${query}" not found in any team.`;
+                        resultDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = 'Error searching';
+                    resultDiv.style.display = 'block';
+                }
+            }
+        }
+
+        // Allow Enter key to search
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchStudent();
+            }
+        });
+    </script>
+</body>
+</html>

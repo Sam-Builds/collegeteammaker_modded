@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -75,6 +76,120 @@
             </div>
             
             <div class="form-group">
+=======
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Login - College Team Maker</title>
+        <link rel="stylesheet" href="login-style.css" />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=M+PLUS+1p:wght@300;400;500;700&family=Cinzel:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap"
+            rel="stylesheet"
+        />
+    </head>
+    <body>
+        <!-- Temple Gate Animation -->
+        <div class="temple-gate" id="templeGate">
+            <div class="gate-pillar left"></div>
+            <div class="gate-pillar right"></div>
+            <div class="gate-roof"></div>
+            <div class="gate-text">⛩️</div>
+        </div>
+
+        <!-- Loading Animation -->
+        <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-text">Authenticating (認証中)...</div>
+            <div class="loading-spinner"></div>
+        </div>
+
+        <!-- Background Shrine Gate -->
+        <div class="background-shrine">
+            <div class="shrine-pillar shrine-left"></div>
+            <div class="shrine-pillar shrine-right"></div>
+            <div class="shrine-roof-top"></div>
+            <div class="shrine-roof-bottom"></div>
+        </div>
+
+        <div class="login-container">
+            <div class="login-header" id="loginHeader">
+                <h1 id="headerTitle">Login</h1>
+            </div>
+
+            <div class="login-form" id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter username"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter password"
+                        required
+                    />
+                </div>
+
+                <button type="submit" onclick="handleLogin()" class="login-btn">
+                    Login
+                </button>
+
+                <div class="form-links">
+                    <a href="#" onclick="showSignup()">Sign Up</a>
+                </div>
+            </div>
+
+            <div class="signup-form" id="signupForm" style="display: none">
+                <div class="form-group">
+                    <label for="newUsername">Username</label>
+                    <input
+                        type="text"
+                        id="newUsername"
+                        placeholder="Choose username"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Enter email"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="newPassword">Password</label>
+                    <input
+                        type="password"
+                        id="newPassword"
+                        placeholder="Choose password"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input
+                        type="password"
+                        id="confirmPassword"
+                        placeholder="Confirm password"
+                        required
+                    />
+                </div>
+
+                <!--<div class="form-group">
+>>>>>>> 9c44963 (Initial commit)
                 <label>Gender</label>
                 <div class="gender-options">
                     <label class="gender-checkbox">
@@ -87,6 +202,7 @@
                     </label>
                 </div>
             </div>
+<<<<<<< HEAD
             
             <button type="submit" onclick="handleSignup()" class="signup-btn">Sign Up</button>
             
@@ -114,3 +230,42 @@
     <script src="login-script.js"></script>
 </body>
 </html>
+=======
+            -->
+                <button
+                    type="submit"
+                    onclick="handleSignup()"
+                    class="signup-btn"
+                >
+                    Sign Up
+                </button>
+
+                <div class="form-links">
+                    <a href="#" onclick="showLogin()">Back to Login</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sakura Petals -->
+        <div class="sakura-container">
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+            <div class="sakura">🌸</div>
+        </div>
+
+        <!-- Watermark -->
+        <div class="watermark">
+            Prime Creation<br /><span class="watermark-jp"
+                >(プライムクリエーション)</span
+            >
+        </div>
+
+        <script src="login-script.js"></script>
+    </body>
+</html>
+>>>>>>> 9c44963 (Initial commit)

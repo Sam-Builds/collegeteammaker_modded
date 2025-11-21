@@ -1,194 +1,292 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>College Team Maker</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=M+PLUS+1p:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=M+PLUS+1p:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+         <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <div class="user-info">
-            <span id="welcomeUser"></span>
-            <button onclick="logout()" class="logout-btn">ログアウト (Logout)</button>
-        </div>
-        <h1>スハン & チランタン<br><span class="subtitle">(Suhan & Chiranthan)</span></h1>
-        
-        <div class="section">
-            <h2>ADD STUDENTS</h2>
-            <div class="add-student">
-                <select id="branchSelect">
-                    <option value="aiml">AI/ML</option>
-                    <option value="cse">CSE</option>
-                    <option value="ds">Data Science</option>
-                    <option value="ise">ISE</option>
-                    <option value="iot">IoT</option>
-                    <option value="ece">ECE</option>
-                    <option value="mechanical">Mechanical</option>
-                    <option value="eee">EEE</option>
-                    <option value="civil">Civil</option>
-                </select>
-                <input type="text" id="studentName" placeholder="ENTER STUDENT NAME">
-                <label class="captain-checkbox">
-                    <input type="checkbox" id="isCaptain"> CAPTAIN
-                </label>
-                <button onclick="addStudent()">ADD STUDENT</button>
-                <button onclick="toggleBulkImport()" id="bulkImportBtn">BULK IMPORT ▼</button>
-                <button onclick="toggleCaptainImport()" id="captainImportBtn">CAPTAIN IMPORT ▼</button>
-            </div>
-            
-            <div class="bulk-import" id="bulkImportSection">
-                <h3>BULK IMPORT (AUTO-PARSE FORMAT)</h3>
-                <p class="format-info">SMART PARSER: PASTE ANY FORMAT - AUTO-DETECTS SECTION, NAME, ID, GENDER & BRANCH (SECTION SHOULD BE AT START)</p>
-                <textarea id="bulkStudents" placeholder="PASTE STUDENT DATA HERE (ONE PER LINE)"></textarea>
-                <div class="bulk-options">
-                    <button onclick="bulkAddStudents()">PARSE AND ADD STUDENTS</button>
-                </div>
-            </div>
-            
-            <div class="bulk-import" id="captainImportSection">
-                <h3>CAPTAIN BULK IMPORT</h3>
-                <p class="format-info">SMART PARSER: PASTE ANY FORMAT - AUTO-DETECTS SECTION, NAME, ID, GENDER & BRANCH (SECTION SHOULD BE AT START)</p>
-                <textarea id="bulkCaptains" placeholder="PASTE CAPTAIN DATA HERE (ONE PER LINE)"></textarea>
-                <div class="bulk-options">
-                    <button onclick="bulkAddCaptains()">PARSE AND ADD CAPTAINS</button>
-                </div>
-            </div>
+      <div class="user-info">
+        <span id="welcomeUser"></span>
+        <button onclick="logout()" class="logout-btn">
+          ログアウト (Logout)
+        </button>
+      </div>
+      <h1>
+        スハン & チランタン<br /><span class="subtitle"
+          >(Suhan & Chiranthan)</span
+        >
+      </h1>
+
+      <div class="section">
+        <h2>ADD STUDENTS</h2>
+        <div class="add-student">
+          <select id="branchSelect">
+            <option value="aiml">AI/ML</option>
+            <option value="cse">CSE</option>
+            <option value="ds">Data Science</option>
+            <option value="ise">ISE</option>
+            <option value="iot">IoT</option>
+            <option value="ece">ECE</option>
+            <option value="mechanical">Mechanical</option>
+            <option value="eee">EEE</option>
+            <option value="civil">Civil</option>
+          </select>
+          <input
+            type="text"
+            id="studentName"
+            placeholder="ENTER STUDENT NAME"
+          />
+          <label class="captain-checkbox">
+            <input type="checkbox" id="isCaptain" /> CAPTAIN
+          </label>
+          <button onclick="addStudent()">ADD STUDENT</button>
+          <button onclick="toggleBulkImport()" id="bulkImportBtn">
+            BULK IMPORT ▼
+          </button>
+          <button onclick="toggleCaptainImport()" id="captainImportBtn">
+            CAPTAIN IMPORT ▼
+          </button>
         </div>
 
-        <div class="section">
-            <h2>STUDENTS BY BRANCH</h2>
-            <div id="studentsList"></div>
+        <div class="bulk-import" id="bulkImportSection">
+          <h3>BULK IMPORT (AUTO-PARSE FORMAT)</h3>
+          <p class="format-info">
+            SMART PARSER: PASTE ANY FORMAT - AUTO-DETECTS SECTION, NAME, ID,
+            GENDER & BRANCH (SECTION SHOULD BE AT START)
+          </p>
+          <textarea
+            id="bulkStudents"
+            placeholder="PASTE STUDENT DATA HERE (ONE PER LINE)"
+          ></textarea>
+          <div class="bulk-options">
+            <button onclick="bulkAddStudents()">PARSE AND ADD STUDENTS</button>
+          </div>
         </div>
 
-        <div class="section">
-            <h2>EVENT MANAGEMENT</h2>
-            <div class="event-controls">
-                <select id="eventSelect">
-                    <option value="default">Default Event</option>
-                </select>
-                <button onclick="createNewEvent()">NEW EVENT</button>
-                <button onclick="saveCurrentEvent()">SAVE EVENT</button>
-                <button onclick="loadEvent()">LOAD EVENT</button>
-            </div>
+        <div class="bulk-import" id="captainImportSection">
+          <h3>CAPTAIN BULK IMPORT</h3>
+          <p class="format-info">
+            SMART PARSER: PASTE ANY FORMAT - AUTO-DETECTS SECTION, NAME, ID,
+            GENDER & BRANCH (SECTION SHOULD BE AT START)
+          </p>
+          <textarea
+            id="bulkCaptains"
+            placeholder="PASTE CAPTAIN DATA HERE (ONE PER LINE)"
+          ></textarea>
+          <div class="bulk-options">
+            <button onclick="bulkAddCaptains()">PARSE AND ADD CAPTAINS</button>
+          </div>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>DATA MANAGEMENT</h2>
-            <div class="data-controls">
-                <input type="file" id="csvImport" accept=".csv,.xlsx" style="display: none;" onchange="importFromFile()">
-                <button onclick="document.getElementById('csvImport').click()">IMPORT CSV/EXCEL</button>
-                <button onclick="exportToCSV()">EXPORT TO CSV</button>
-                <button onclick="exportToExcel()">EXPORT TO EXCEL</button>
+      <div class="section">
+        <h2>STUDENTS BY BRANCH</h2>
+        <div id="studentsList"></div>
+      </div>
 
-            </div>
+      <div class="section">
+        <h2>EVENT MANAGEMENT</h2>
+        <div class="event-controls">
+          <select id="eventSelect">
+            <option value="default">Default Event</option>
+          </select>
+          <button onclick="createNewEvent()">NEW EVENT</button>
+          <button onclick="saveCurrentEvent()">SAVE EVENT</button>
+          <button onclick="loadEvent()">LOAD EVENT</button>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>GENERATE TEAMS</h2>
-            <div class="team-controls">
-                <label for="teamSize">TEAM SIZE:</label>
-                <input type="number" id="teamSize" min="2" max="10" value="4">
-                <label for="maleCount">MALES:</label>
-                <input type="number" id="maleCount" min="0" max="10" value="0" placeholder="Any">
-                <label for="femaleCount">FEMALES:</label>
-                <input type="number" id="femaleCount" min="0" max="10" value="0" placeholder="Any">
-                <button onclick="generateTeams()">GENERATE TEAMS</button>
-                <button onclick="shuffleTeams()" id="shuffleBtn" style="display: none;">SHUFFLE TEAMS</button>
-            </div>
+      <div class="section">
+        <h2>DATA MANAGEMENT</h2>
+        <div class="data-controls">
+          <input
+            type="file"
+            id="csvImport"
+            accept=".csv,.xlsx"
+            style="display: none"
+            onchange="importFromFile()"
+          />
+          <button onclick="document.getElementById('csvImport').click()">
+            IMPORT CSV/EXCEL
+          </button>
+          <button onclick="exportToCSV()">EXPORT TO CSV</button>
+          <button onclick="exportToExcel()">EXPORT TO EXCEL</button>
         </div>
+      </div>
 
-        <div class="section">
-            <h2>GENERATED TEAMS</h2>
-            <div class="teams-header" id="teamsHeader" style="display: none;">
-                <button onclick="copyAllTeams()" class="copy-all-btn">COPY ALL TEAMS</button>
-                <button id="generateLinkBtn" class="share-link-btn">GENERATE LINK</button>
-                <button onclick="clearAllTeams()" class="clear-all-btn">CLEAR ALL TEAMS</button>
-            </div>
-            <div class="student-search" id="studentSearch" style="display: none;">
-                <input type="text" id="searchInput" placeholder="SEARCH STUDENT BY NAME OR ID">
-                <button onclick="searchStudent()">SEARCH</button>
-                <div id="searchResult"></div>
-            </div>
-            <div id="teamsDisplay"></div>
+      <div class="section">
+        <h2>GENERATE TEAMS</h2>
+        <div class="team-controls">
+          <label for="teamSize">TEAM SIZE:</label>
+          <input type="number" id="teamSize" min="2" max="10" value="4" />
+          <label for="maleCount">MALES:</label>
+          <input
+            type="number"
+            id="maleCount"
+            min="0"
+            max="10"
+            value="0"
+            placeholder="Any"
+          />
+          <label for="femaleCount">FEMALES:</label>
+          <input
+            type="number"
+            id="femaleCount"
+            min="0"
+            max="10"
+            value="0"
+            placeholder="Any"
+          />
+          <button onclick="generateTeams()">GENERATE TEAMS</button>
+          <button
+            onclick="shuffleTeams()"
+            id="shuffleBtn"
+            style="display: none"
+          >
+            SHUFFLE TEAMS
+          </button>
         </div>
-        
+      </div>
 
-
-
+      <div class="section">
+        <h2>GENERATED TEAMS</h2>
+        <div class="teams-header" id="teamsHeader" style="display: none">
+          <button onclick="copyAllTeams()" class="copy-all-btn">
+            COPY ALL TEAMS
+          </button>
+          <button id="generateLinkBtn" class="share-link-btn">
+            GENERATE LINK
+          </button>
+          <button onclick="clearAllTeams()" class="clear-all-btn">
+            CLEAR ALL TEAMS
+          </button>
+        </div>
+        <div class="student-search" id="studentSearch" style="display: none">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="SEARCH STUDENT BY NAME OR ID"
+          />
+          <button onclick="searchStudent()">SEARCH</button>
+          <div id="searchResult"></div>
+        </div>
+        <div id="teamsDisplay"></div>
+      </div>
     </div>
 
     <!-- Watermark -->
-    <div class="watermark">Prime Creation<br><span class="watermark-jp">(プライムクリエーション)</span></div>
+    <div class="watermark">
+      Prime Creation<br /><span class="watermark-jp"
+        >(プライムクリエーション)</span
+      >
+    </div>
 
     <!-- Sakura Petals -->
     <div class="sakura-container">
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
-        <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
     </div>
 
     <script>
-        // Check if user is logged in
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (!currentUser) {
-            window.location.href = 'login.html';
-        } else {
-            document.getElementById('welcomeUser').textContent = `ようこそ (Welcome), ${currentUser.username}!`;
-        }
-        
-        function logout() {
-            localStorage.removeItem('currentUser');
-            window.location.href = 'login.html';
-        }
-        
-        // Add event listener after page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            const generateBtn = document.getElementById('generateLinkBtn');
-            if (generateBtn) {
-                generateBtn.addEventListener('click', function() {
-                    if (!window.currentTeams || window.currentTeams.length === 0) {
-                        alert('No teams to share. Please generate teams first.');
-                        return;
-                    }
-                    
-                    // Clean the team data to avoid encoding issues
-                    const cleanTeams = window.currentTeams.map(team => 
-                        team.map(member => ({
-                            name: member.name || '',
-                            campusId: member.campusId || 'XXXX',
-                            branch: member.branch || 'cse',
-                            gender: member.gender || 'Unknown',
-                            isCaptain: member.isCaptain || false
-                        }))
-                    );
-                    
-                    const shareData = { teams: cleanTeams };
-                    const encodedData = btoa(JSON.stringify(shareData));
-                    
-                    let baseUrl = window.location.href;
-                    if (baseUrl.includes('index.html')) {
-                        baseUrl = baseUrl.replace('index.html', 'shared-teams.html');
-                    } else {
-                        baseUrl = baseUrl + (baseUrl.endsWith('/') ? '' : '/') + 'shared-teams.html';
-                    }
-                    
-                    const shareUrl = baseUrl + '?data=' + encodedData;
-                    
-                    prompt('Copy this link to share with students:', shareUrl);
-                });
+      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+      if (!currentUser) {
+        window.location.href = "login.html";
+      } else {
+        try {
+            const username = currentUser.username;
+            const userData = JSON.parse(
+              localStorage.getItem("user_" + username)
+            );
+            const hasCompletedSecondStep = currentUser.completedSecondStep;
+            const isadmin = currentUser.isAdmin;
+            if (isadmin) {
+              window.location.href = "admin.html";
+            } else {
+              if (hasCompletedSecondStep) {
+                window.location.href = "signupprocess.html";
+              } else {
+                document.getElementById(
+                  "welcomeUser"
+                ).textContent = `ようこそ (Welcome), ${currentUser.username}!`;
+              }
             }
-        });
+          
+        } catch (error) {
+          console.error("Error retrieving user data:", error);
+          window.location.href = "login.html";
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("currentUser");
+        firebase.auth().signOut();
+        window.location.href = "login.html";
+        
+
+      }
+
+      // Add event listener after page loads
+      document.addEventListener("DOMContentLoaded", function () {
+        const generateBtn = document.getElementById("generateLinkBtn");
+        if (generateBtn) {
+          generateBtn.addEventListener("click", function () {
+            if (!window.currentTeams || window.currentTeams.length === 0) {
+              alert("No teams to share. Please generate teams first.");
+              return;
+            }
+
+            // Clean the team data to avoid encoding issues
+            const cleanTeams = window.currentTeams.map((team) =>
+              team.map((member) => ({
+                name: member.name || "",
+                campusId: member.campusId || "XXXX",
+                branch: member.branch || "cse",
+                gender: member.gender || "Unknown",
+                isCaptain: member.isCaptain || false,
+              }))
+            );
+
+            const shareData = { teams: cleanTeams };
+            const encodedData = btoa(JSON.stringify(shareData));
+
+            let baseUrl = window.location.href;
+            if (baseUrl.includes("index.html")) {
+              baseUrl = baseUrl.replace("index.html", "shared-teams.html");
+            } else {
+              baseUrl =
+                baseUrl +
+                (baseUrl.endsWith("/") ? "" : "/") +
+                "shared-teams.html";
+            }
+
+            const shareUrl = baseUrl + "?data=" + encodedData;
+
+            prompt("Copy this link to share with students:", shareUrl);
+          });
+        }
+      });
     </script>
     <script src="script.js"></script>
-</body>
+    <script src="firestore.js"></script>
+  </body>
 </html>

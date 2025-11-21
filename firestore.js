@@ -1,11 +1,3 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyAG6s_6G6vfREd0EJFkIAZFo611XXbgWOw",
-  authDomain: "collegeteammaker.firebaseapp.com",
-  projectId: "collegeteammaker",
-  storageBucket: "collegeteammaker.firebasestorage.app",
-  messagingSenderId: "858054620144",
-  appId: "1:858054620144:web:bd946512a27c19179f2335"
-};
 
 firebase.initializeApp(firebaseConfig);
 

@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - College Team Maker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cinzel:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --text-dark: #333;
+        --text-light: #666;
+        --bg-light: #f5f7fa;
+        --white: #fff;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --radius: 12px;
+      }
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+        background: var(--bg-light);
+        min-height: 100vh;
+      }
+      /* Sidebar */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 280px;
+        height: 100vh;
+        background: var(--white);
+        box-shadow: var(--shadow);
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+      }
+      .sidebar.active {
+        transform: translateX(0);
+      }
+      .sidebar-header {
+        padding: 25px 20px;
+        background: var(--gradient);
+        color: var(--white);
+      }
+      .sidebar-header h2 {
+        font-family: "Cinzel", serif;
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+      .sidebar-header p {
+        font-size: 12px;
+        opacity: 0.9;
+      }
+      .user-info {
+        padding: 20px;
+        border-bottom: 1px solid #eee;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .user-avatar {
+        width: 45px;
+        height: 45px;
+        background: var(--gradient);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--white);
+        font-weight: 700;
+      }
+      .user-details h4 {
+        font-size: 14px;
+        color: var(--text-dark);
+      }
+      .user-details span {
+        font-size: 11px;
+        background: var(--gradient);
+        color: var(--white);
+        padding: 2px 8px;
+        border-radius: 10px;
+      }
+      .nav-menu {
+        padding: 15px 0;
+      }
+      .nav-group {
+        margin-bottom: 10px;
+      }
+      .nav-group-title {
+        padding: 10px 20px;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--text-light);
+        letter-spacing: 1px;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: var(--text-dark);
+        text-decoration: none;
+        transition: all 0.3s;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+      }
+      .nav-item:hover,
+      .nav-item.active {
+        background: rgba(102, 126, 234, 0.1);
+        border-left-color: var(--primary);
+        color: var(--primary);
+      }
+      .nav-item span {
+        margin-left: 12px;
+        font-size: 14px;
+      }
+      /* Main Content */
+      .main-wrapper {
+        margin-left: 0;
+        transition: margin-left 0.3s;
+      }
+      /* Header */
+      .header {
+        background: var(--white);
+        padding: 15px 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
+      .menu-toggle {
+        width: 40px;
+        height: 40px;
+        background: var(--gradient);
+        border: none;
+        border-radius: 10px;
+        color: var(--white);
+        font-size: 20px;
+        cursor: pointer;
+      }
+      .header-title {
+        font-family: "Cinzel", serif;
+        font-size: 18px;
+        color: var(--primary);
+      }
+      .header-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .header-btn {
+        width: 40px;
+        height: 40px;
+        background: var(--bg-light);
+        border: none;
+        border-radius: 10px;
+        color: var(--text-dark);
+        cursor: pointer;
+        font-size: 16px;
+      }
+      /* Content Area */
+      .content {
+        padding: 20px;
+      }
+      .content-section {
+        display: none;
+      }
+      .content-section.active {
+        display: block;
+      }
+      /* Cards */
+      .card {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+      }
+      .card-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+      }
+      /* Bottom Nav (Mobile) */
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: var(--white);
+        box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: space-around;
+        padding: 10px 0;
+        z-index: 1000;
+      }
+      .bottom-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 15px;
+        color: var(--text-light);
+        text-decoration: none;
+        font-size: 10px;
+        cursor: pointer;
+        transition: color 0.3s;
+      }
+      .bottom-nav-item.active,
+      .bottom-nav-item:hover {
+        color: var(--primary);
+      }
+      .bottom-nav-item span:first-child {
+        font-size: 20px;
+        margin-bottom: 4px;
+      }
+      /* Overlay */
+      .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+        display: none;
+      }
+      .overlay.active {
+        display: block;
+      }
+      /* Buttons */
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .btn-primary {
+        background: var(--gradient);
+        color: var(--white);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+      .btn-secondary {
+        background: var(--bg-light);
+        color: var(--text-dark);
+      }
+      /* Form Elements */
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+      .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .loading-spinner {
+        display: none;
+        text-align: center;
+        padding: 20px;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 10px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .loading-text {
+        color: var(--text-light);
+        font-size: 14px;
+      }
+      /* Sakura */
+      .sakura-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .sakura {
+        position: absolute;
+        font-size: 16px;
+        opacity: 0.4;
+        animation: fall linear infinite;
+      }
+      .sakura:nth-child(1) {
+        left: 5%;
+        animation-duration: 15s;
+      }
+      .sakura:nth-child(2) {
+        left: 15%;
+        animation-duration: 12s;
+        animation-delay: 2s;
+      }
+      .sakura:nth-child(3) {
+        left: 25%;
+        animation-duration: 18s;
+        animation-delay: 4s;
+      }
+      .sakura:nth-child(4) {
+        left: 85%;
+        animation-duration: 14s;
+        animation-delay: 1s;
+      }
+      .sakura:nth-child(5) {
+        left: 95%;
+        animation-duration: 16s;
+        animation-delay: 3s;
+      }
+      @keyframes fall {
+        0% {
+          top: -5%;
+          transform: translateX(0) rotate(0deg);
+        }
+        100% {
+          top: 105%;
+          transform: translateX(50px) rotate(360deg);
+        }
+      }
+      /* Watermark */
+      .watermark {
+        position: fixed;
+        bottom: 70px;
+        right: 15px;
+        font-family: "Cinzel", serif;
+        font-size: 10px;
+        color: rgba(102, 126, 234, 0.3);
+        text-align: right;
+        z-index: 1;
+      }
+      /* Desktop */
+      @media (min-width: 769px) {
+        .sidebar {
+          transform: translateX(0);
+        }
+        .main-wrapper {
+          margin-left: 280px;
+        }
+        .menu-toggle {
+          display: none;
+        }
+        .bottom-nav {
+          display: none;
+        }
+        .content {
+          padding: 30px;
+          padding-bottom: 30px;
+        }
+        .watermark {
+          bottom: 20px;
+        }
+      }
+      @media (max-width: 768px) {
+        .content {
+          padding-bottom: 80px;
+        }
+      }
+      /* Iframe Container */
+      .section-frame {
+        width: 100%;
+        border: none;
+        min-height: calc(100vh - 140px);
+        display: none;
+      }
+      .section-frame.active {
+        display: block;
+      }
+    </style>
+  </head>
+  <body data-user-role="admin">
+    <!-- Sakura -->
+    <div class="sakura-container">
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+      <div class="sakura">🌸</div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <aside
+      class="sidebar"
+      id="sidebar"
+      role="navigation"
+      aria-label="Main Navigation"
+    >
+      <div class="sidebar-header">
+        <h2>⛩️ Team Maker</h2>
+        <p>チームメーカー</p>
+      </div>
+      <div class="user-info">
+        <div class="user-details">
+          <h4 id="userName">Admin User</h4>
+          <span id="userRole">Administrator</span>
+        </div>
+      </div>
+      <nav class="nav-menu">
+        <!-- Admin Navigation -->
+        <div class="nav-group" data-role="admin">
+          <div class="nav-group-title">Team Management</div>
+          <a
+            class="nav-item active"
+            data-section="dashboard"
+            onclick="loadSection('dashboard')"
+          >
+            <span>Dashboard</span>
+          </a>
+          <a
+            class="nav-item"
+            data-section="teamGeneration"
+            onclick="loadSection('teamGeneration')"
+          >
+            <span>Generate Teams</span>
+          </a>
+          <a
+            class="nav-item"
+            data-section="teamManagement"
+            onclick="loadSection('teamManagement')"
+          >
+            <span>Manage Teams</span>
+          </a>
+        </div>
+        <div class="nav-group" data-role="admin">
+          <div class="nav-group-title">Students</div>
+          <a
+            class="nav-item"
+            data-section="studentManagement"
+            onclick="loadSection('studentManagement')"
+          >
+            <span>Student Database</span>
+          </a>
+          <a
+            class="nav-item"
+            data-section="analytics"
+            onclick="loadSection('analytics')"
+          >
+            <span>Analytics</span>
+          </a>
+        </div>
+        <div class="nav-group" data-role="admin">
+          <div class="nav-group-title">System</div>
+          <a
+            class="nav-item"
+            data-section="systemSettings"
+            onclick="loadSection('systemSettings')"
+          >
+            <span>Settings</span>
+          </a>
+        </div>
+        <!-- Student Navigation -->
+        <div class="nav-group" data-role="student" style="display: none">
+          <div class="nav-group-title">My Space</div>
+          <a
+            class="nav-item"
+            data-section="myTeam"
+            onclick="loadSection('myTeam')"
+          >
+            <span>My Team</span>
+          </a>
+          <a
+            class="nav-item"
+            data-section="myTasks"
+            onclick="loadSection('myTasks')"
+          >
+            <span>My Tasks</span>
+          </a>
+          <a
+            class="nav-item"
+            data-section="teamProgress"
+            onclick="loadSection('teamProgress')"
+          >
+            <span>Team Progress</span>
+          </a>
+          <a
+            class="nav-item"
+            data-section="resources"
+            onclick="loadSection('resources')"
+          >
+            <span>Resources</span>
+          </a>
+        </div>
+        <div class="nav-group">
+          <div class="nav-group-title">Account</div>
+          <a class="nav-item" onclick="logout()">
+            <span>Logout</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main -->
+    <div class="main-wrapper">
+      <header class="header">
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle Menu">
+          ☰
+        </button>
+        <h1 class="header-title" id="pageTitle">Dashboard</h1>
+        <div class="header-actions">
+          <button class="header-btn" aria-label="Notifications">🔔</button>
+          <button class="header-btn" aria-label="Profile">👤</button>
+        </div>
+      </header>
+
+      <main class="content" id="mainContent">
+        <!-- Dashboard Home -->
+        <section
+          class="content-section active"
+          id="sectionDashboard"
+          data-section="dashboard"
+        >
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Welcome Back!</h3>
+            </div>
+            <p style="color: var(--text-light); margin-bottom: 20px">
+              Quick overview of your team management system.
+            </p>
+            <!--             
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                gap: 15px;
+              "
+            >
+              <div
+                class="card"
+                style="
+                  text-align: center;
+                  margin: 0;
+                  background: linear-gradient(
+                    135deg,
+                    rgba(102, 126, 234, 0.1),
+                    rgba(118, 75, 162, 0.1)
+                  );
+                "
+              >
+                <div
+                  style="
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--primary);
+                  "
+                  id="totalTeams"
+                >
+                  0
+                </div>
+                <div style="font-size: 12px; color: var(--text-light)">
+                  Total Teams
+                </div>
+              </div>
+              <div
+                class="card"
+                style="
+                  text-align: center;
+                  margin: 0;
+                  background: linear-gradient(
+                    135deg,
+                    rgba(102, 126, 234, 0.1),
+                    rgba(118, 75, 162, 0.1)
+                  );
+                "
+              >
+                <div
+                  style="
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--primary);
+                  "
+                  id="totalStudents"
+                >
+                  0
+                </div>
+                <div style="font-size: 12px; color: var(--text-light)">
+                  Students
+                </div>
+              </div>
+              <div
+                class="card"
+                style="
+                  text-align: center;
+                  margin: 0;
+                  background: linear-gradient(
+                    135deg,
+                    rgba(102, 126, 234, 0.1),
+                    rgba(118, 75, 162, 0.1)
+                  );
+                "
+              >
+                <div
+                  style="
+                    font-size: 24px;
+                    font-weight: 700;
+                    color: var(--primary);
+                  "
+                  id="publishedTeams"
+                >
+                  0
+                </div>
+                <div style="font-size: 12px; color: var(--text-light)">
+                  Published
+                </div>
+              </div>
+            </div> -->
+            <div style="position: relative">
+              <!-- Loading Spinner -->
+              <div class="loading-spinner" id="statsLoading">
+                <div class="spinner"></div>
+                <div class="loading-text">Loading statistics...</div>
+              </div>
+
+              <!-- Stats Cards (initially hidden) -->
+              <div id="statsContainer" style="display: none">
+                <div
+                  style="
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+                    gap: 15px;
+                  "
+                >
+                  <div
+                    class="card"
+                    style="
+                      text-align: center;
+                      margin: 0;
+                      background: linear-gradient(
+                        135deg,
+                        rgba(102, 126, 234, 0.1),
+                        rgba(118, 75, 162, 0.1)
+                      );
+                    "
+                  >
+                    <div
+                      style="
+                        font-size: 24px;
+                        font-weight: 700;
+                        color: var(--primary);
+                      "
+                      id="totalTeams"
+                    >
+                      0
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-light)">
+                      Total Teams
+                    </div>
+                  </div>
+                  <div
+                    class="card"
+                    style="
+                      text-align: center;
+                      margin: 0;
+                      background: linear-gradient(
+                        135deg,
+                        rgba(102, 126, 234, 0.1),
+                        rgba(118, 75, 162, 0.1)
+                      );
+                    "
+                  >
+                    <div
+                      style="
+                        font-size: 24px;
+                        font-weight: 700;
+                        color: var(--primary);
+                      "
+                      id="totalStudents"
+                    >
+                      0
+                    </div>
+                    <div style="font-size: 12px; color: var(--text-light)">
+                      Students
+                    </div>
+                  </div>
+                
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Quick Actions</h3>
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px">
+              <button
+                class="btn btn-primary"
+                onclick="loadSection('teamGeneration')"
+              >
+                Generate Teams
+              </button>
+              <button
+                class="btn btn-secondary"
+                onclick="loadSection('studentManagement')"
+              >
+                Manage Students
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Iframe containers for modular pages -->
+        <iframe
+          class="section-frame"
+          id="frameTeamGeneration"
+          data-src="pages/team-generation.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameTeamManagement"
+          data-src="pages/team-manage.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameStudentManagement"
+          data-src="pages/student-management.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameAnalytics"
+          data-src="pages/analytics.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameSystemSettings"
+          data-src="pages/system-settings.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameMyTeam"
+          data-src="pages/my-team.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameMyTasks"
+          data-src="pages/my-tasks.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameTeamProgress"
+          data-src="pages/team-progress.html"
+        ></iframe>
+        <iframe
+          class="section-frame"
+          id="frameResources"
+          data-src="pages/resources.html"
+        ></iframe>
+      </main>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav" role="navigation" aria-label="Quick Navigation">
+      <a
+        class="bottom-nav-item active"
+        data-section="dashboard"
+        onclick="loadSection('dashboard')"
+      >
+        <span>Home</span>
+      </a>
+      <a
+        class="bottom-nav-item"
+        data-section="teamGeneration"
+        onclick="loadSection('teamGeneration')"
+        data-role="admin"
+      >
+        <span>Generate</span>
+      </a>
+      <a
+        class="bottom-nav-item"
+        data-section="myTeam"
+        onclick="loadSection('myTeam')"
+        data-role="student"
+        style="display: none"
+      >
+        <span>My Team</span>
+      </a>
+      <a
+        class="bottom-nav-item"
+        data-section="teamManagement"
+        onclick="loadSection('teamManagement')"
+        data-role="admin"
+      >
+        <span>Teams</span>
+      </a>
+      <a
+        class="bottom-nav-item"
+        data-section="myTasks"
+        onclick="loadSection('myTasks')"
+        data-role="student"
+        style="display: none"
+      >
+        <span>Tasks</span>
+      </a>
+      <a
+        class="bottom-nav-item"
+        data-section="studentManagement"
+        onclick="loadSection('studentManagement')"
+        data-role="admin"
+      >
+        <span>Students</span>
+      </a>
+    </nav>
+
+    <!-- Watermark -->
+    <div class="watermark">Prime Creation<br />(プライムクリエーション)</div>
+    <script src="firestore.js"></script>
+
+    <script>
+      function initializeDashboard() {
+        const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+
+        if (!currentUser) {
+          window.location.href = "login.html";
+          return;
+        }
+
+        try {
+          const username = currentUser.username;
+          const userData = JSON.parse(localStorage.getItem("user_" + username));
+          const isAdmin = currentUser.isAdmin;
+
+          setUserRole(isAdmin ? "admin" : "student");
+
+          document.getElementById("userName").textContent =
+            currentUser.username || "User";
+
+          if (isAdmin) {
+            document.getElementById("userRole").textContent = "Administrator";
+            loadSection("dashboard");
+          } else {
+            document.getElementById("userRole").textContent = "Student";
+            loadSection("myTeam");
+          }
+
+          //loadSection("dashboard");
+        } catch (error) {
+          console.error("Error initializing dashboard:", error);
+          window.location.href = "login.html";
+        }
+      }
+
+      const menuToggle = document.getElementById("menuToggle");
+      const sidebar = document.getElementById("sidebar");
+      const overlay = document.getElementById("overlay");
+
+      menuToggle.addEventListener("click", () => {
+        sidebar.classList.toggle("active");
+        overlay.classList.toggle("active");
+      });
+
+      overlay.addEventListener("click", () => {
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+      });
+
+      function loadSection(sectionName) {
+        document
+          .querySelectorAll(".nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        document
+          .querySelectorAll(".bottom-nav-item")
+          .forEach((item) => item.classList.remove("active"));
+        document
+          .querySelectorAll(`[data-section="${sectionName}"]`)
+          .forEach((item) => item.classList.add("active"));
+
+        const titles = {
+          dashboard: "Dashboard",
+          teamGeneration: "Generate Teams",
+          teamManagement: "Manage Teams",
+          studentManagement: "Student Database",
+          analytics: "Analytics",
+          systemSettings: "System Settings",
+          myTeam: "My Team",
+          myTasks: "My Tasks",
+          teamProgress: "Team Progress",
+          resources: "Resources",
+        };
+        document.getElementById("pageTitle").textContent =
+          titles[sectionName] || "Dashboard";
+
+        document
+          .querySelectorAll(".content-section")
+          .forEach((sec) => sec.classList.remove("active"));
+        document
+          .querySelectorAll(".section-frame")
+          .forEach((frame) => frame.classList.remove("active"));
+
+        if (sectionName === "dashboard") {
+          document.getElementById("sectionDashboard").classList.add("active");
+          loadDashboardStats();
+        } else {
+          const frameId =
+            "frame" +
+            sectionName.charAt(0).toUpperCase() +
+            sectionName.slice(1);
+          const frame = document.getElementById(frameId);
+          if (frame) {
+            if (!frame.src || frame.src === "about:blank") {
+              frame.src = frame.dataset.src;
+            }
+            frame.classList.add("active");
+          }
+        }
+
+        sidebar.classList.remove("active");
+        overlay.classList.remove("active");
+      }
+
+      function setUserRole(role) {
+        document.body.dataset.userRole = role;
+
+        document.querySelectorAll("[data-role]").forEach((el) => {
+          if (el.dataset.role === role || !el.dataset.role) {
+            el.style.display = "";
+          } else {
+            el.style.display = "none";
+          }
+        });
+
+        document
+          .querySelectorAll(".bottom-nav-item[data-role]")
+          .forEach((item) => {
+            if (item.dataset.role === role) {
+              item.style.display = "flex";
+            } else {
+              item.style.display = "none";
+            }
+          });
+
+        const currentSection =
+          document.querySelector(".content-section.active")?.dataset.section ||
+          document
+            .querySelector(".section-frame.active")
+            ?.id.replace("frame", "")
+            .toLowerCase();
+
+        const adminSections = [
+          "teamGeneration",
+          "teamManagement",
+          "studentManagement",
+          "analytics",
+          "systemSettings",
+        ];
+        const studentSections = [
+          "myTeam",
+          "myTasks",
+          "teamProgress",
+          "resources",
+        ];
+
+        if (
+          (role === "student" && adminSections.includes(currentSection)) ||
+          (role === "admin" && studentSections.includes(currentSection))
+        ) {
+          loadSection("dashboard");
+        }
+      }
+
+      function logout() {
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.removeItem("currentUser");
+          window.location.href = "login.html";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        initializeDashboard();
+      });
+
+      //   async function loadDashboardStats() {
+      //     try {
+      //       const db = firebase.firestore();
+
+      //       const studentsSnapshot = await db.collection("members").get();
+      //       const totalStudents = studentsSnapshot.size;
+      //       document.getElementById("totalStudents").textContent = totalStudents;
+
+      //       const teamsSnapshot = await db.collection("Teams").get();
+      //       const totalTeams = teamsSnapshot.size;
+      //       document.getElementById("totalTeams").textContent = totalTeams;
+
+      //       let publishedTeams = 0;
+      //       teamsSnapshot.forEach((doc) => {
+      //         const teamData = doc.data();
+      //         if (teamData.published === true) {
+      //           publishedTeams++;
+      //         }
+      //       });
+      //       document.getElementById("publishedTeams").textContent =
+      //         publishedTeams;
+      //     } catch (error) {
+      //       console.error("Error loading dashboard stats:", error);
+      //       document.getElementById("totalTeams").textContent = "0";
+      //       document.getElementById("totalStudents").textContent = "0";
+      //       document.getElementById("publishedTeams").textContent = "0";
+      //     }
+      //   }
+
+      async function loadDashboardStats() {
+        const loadingElement = document.getElementById("statsLoading");
+        const statsContainer = document.getElementById("statsContainer");
+
+        try {
+          loadingElement.style.display = "block";
+          statsContainer.style.display = "none";
+
+          const db = firebase.firestore();
+
+          const studentsSnapshot = await db.collection("members").get();
+          const totalStudents = studentsSnapshot.size;
+          document.getElementById("totalStudents").textContent = totalStudents;
+
+          const teamsSnapshot = await db.collection("Teams").get();
+          const totalTeams = teamsSnapshot.size;
+          document.getElementById("totalTeams").textContent = totalTeams;
+
+        //   let publishedTeams = 0;
+        //   teamsSnapshot.forEach((doc) => {
+        //     const teamData = doc.data();
+        //     if (teamData.published === true) {
+        //       publishedTeams++;
+        //     }
+        //   });
+        //   document.getElementById("publishedTeams").textContent =
+        //     publishedTeams;
+
+          loadingElement.style.display = "none";
+          statsContainer.style.display = "block";
+        } catch (error) {
+          console.error("Error loading dashboard stats:", error);
+
+          document.getElementById("totalTeams").textContent = "0";
+          document.getElementById("totalStudents").textContent = "0";
+          document.getElementById("publishedTeams").textContent = "0";
+
+          loadingElement.style.display = "none";
+          statsContainer.style.display = "block";
+        }
+      }
+    </script>
+  </body>
+</html>

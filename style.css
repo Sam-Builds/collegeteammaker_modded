@@ -15,6 +15,25 @@ body {
     animation: fadeIn 1s ease-in;
 }
 
+.dashboard-btn {
+    background: #2c1810;
+    color: #f5f0e8;
+    border: 2px solid #dc143c;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 0.9rem;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.dashboard-btn:hover {
+    background: #dc143c;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(220, 20, 60, 0.3);
+}
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }

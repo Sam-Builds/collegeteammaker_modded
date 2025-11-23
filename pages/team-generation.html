@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Team Generation - College Team Maker</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Cinzel:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      :root {
+        --primary: #667eea;
+        --secondary: #764ba2;
+        --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --text-dark: #333;
+        --text-light: #666;
+        --bg-light: #f5f7fa;
+        --white: #fff;
+        --shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        --radius: 12px;
+        --success: #27ae60;
+        --warning: #f39c12;
+        --danger: #e74c3c;
+      }
+      body {
+        font-family: "Noto Sans JP", sans-serif;
+        background: var(--bg-light);
+        padding: 20px;
+      }
+      .card {
+        background: var(--white);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px;
+        margin-bottom: 20px;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+      }
+      .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--text-dark);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: var(--text-dark);
+        font-weight: 500;
+      }
+      .form-control {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: 14px;
+        transition: border-color 0.3s;
+      }
+      .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+      .form-row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+      }
+      .range-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
+      .range-container input[type="range"] {
+        flex: 1;
+        accent-color: var(--primary);
+      }
+      .range-value {
+        min-width: 50px;
+        text-align: center;
+        padding: 8px 12px;
+        background: var(--gradient);
+        color: var(--white);
+        border-radius: 8px;
+        font-weight: 600;
+      }
+      .toggle-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .toggle-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 15px;
+        background: var(--bg-light);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      .member-item {
+        transition: all 0.2s ease;
+      }
+
+      .member-item:hover {
+        background: rgba(0, 0, 0, 0.02);
+        transform: translateX(2px);
+      }
+
+      .gender-male {
+        color: #3498db;
+      }
+      .gender-female {
+        color: #e91e63;
+      }
+      .gender-other {
+        color: #9b59b6;
+      }
+      .toggle-item:hover {
+        background: rgba(102, 126, 234, 0.1);
+      }
+      .toggle-item input {
+        accent-color: var(--primary);
+        width: 18px;
+        height: 18px;
+      }
+      .toggle-item label {
+        cursor: pointer;
+        font-size: 14px;
+      }
+      .algorithm-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+      }
+      .algorithm-card {
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .algorithm-card:hover {
+        border-color: var(--primary);
+        transform: translateY(-2px);
+      }
+      .algorithm-card.selected {
+        border-color: var(--primary);
+        background: rgba(102, 126, 234, 0.1);
+      }
+      .algorithm-card span:first-child {
+        font-size: 24px;
+        display: block;
+        margin-bottom: 8px;
+      }
+      .algorithm-card span:last-child {
+        font-size: 12px;
+        color: var(--text-light);
+      }
+      .btn {
+        padding: 12px 24px;
+        border: none;
+        border-radius: 10px;
+        font-family: "Noto Sans JP", sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-primary {
+        background: var(--gradient);
+        color: var(--white);
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+      }
+      .btn-secondary {
+        background: var(--bg-light);
+        color: var(--text-dark);
+      }
+      .btn-success {
+        background: var(--success);
+        color: var(--white);
+      }
+      .btn-warning {
+        background: var(--warning);
+        color: var(--white);
+      }
+      .btn-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .algorithm-card[data-algorithm="skill"] {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      /* Preview Section */
+      .preview-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .team-preview-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      .team-preview-card {
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        padding: 15px;
+        transition: all 0.3s;
+      }
+      .team-preview-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+      }
+      .team-name {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--primary);
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .team-stats {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        color: var(--text-light);
+      }
+      .team-members {
+        font-size: 13px;
+      }
+      .member-item {
+        padding: 6px 0;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .member-item:last-child {
+        border-bottom: none;
+      }
+      .member-badge {
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 10px;
+        background: var(--bg-light);
+      }
+      .member-badge.captain {
+        background: var(--gradient);
+        color: var(--white);
+      }
+      .status-badge {
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 11px;
+        font-weight: 500;
+      }
+      .status-draft {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .status-published {
+        background: #d4edda;
+        color: #155724;
+      }
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: var(--text-light);
+      }
+      .empty-state span {
+        font-size: 48px;
+        display: block;
+        margin-bottom: 15px;
+        opacity: 0.5;
+      }
+      /* Constraints Summary */
+      .constraints-summary {
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.05),
+          rgba(118, 75, 162, 0.05)
+        );
+        border-radius: 10px;
+        padding: 15px;
+        margin-top: 15px;
+      }
+      .constraint-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        font-size: 13px;
+      }
+      .constraint-item:last-child {
+        border-bottom: none;
+      }
+      @media (max-width: 600px) {
+        .form-row {
+          grid-template-columns: 1fr;
+        }
+        .algorithm-cards {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .btn-group {
+          flex-direction: column;
+        }
+        .btn-group .btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Generation Settings -->
+    <section
+      class="card"
+      id="teamGenerationSection"
+      data-section="teamGeneration"
+    >
+      <div class="card-header">
+        <h3 class="card-title">Team Generation Settings</h3>
+      </div>
+
+      <div class="form-group">
+        <label for="teamSize">Team Size (Members per Team)</label>
+        <div class="range-container">
+          <input type="range" id="teamSize" min="2" max="10" value="4" />
+          <div class="range-value" id="teamSizeValue">4</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="minMale">Minimum Male Members</label>
+          <input
+            type="number"
+            class="form-control"
+            id="minMale"
+            min="0"
+            max="10"
+            value="0"
+            placeholder="0"
+          />
+        </div>
+        <div class="form-group">
+          <label for="minFemale">Minimum Female Members</label>
+          <input
+            type="number"
+            class="form-control"
+            id="minFemale"
+            min="0"
+            max="10"
+            value="0"
+            placeholder="0"
+          />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Branch Diversity Options</label>
+        <div class="toggle-group" id="branchToggles">
+          <div class="toggle-item">
+            <input type="checkbox" id="mixBranches" checked />
+            <label for="mixBranches">Mix Branches</label>
+          </div>
+          <div class="toggle-item">
+            <input type="checkbox" id="sameBranch" />
+            <label for="sameBranch">Same Branch Only</label>
+          </div>
+          <div class="toggle-item">
+            <input type="checkbox" id="mixSections" checked />
+            <label for="mixSections">Mix Sections</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="constraints-summary">
+        <strong style="font-size: 14px; margin-bottom: 10px; display: block"
+          >Generation Summary</strong
+        >
+        <div class="constraint-item">
+          <span>Team Size:</span><span id="summarySize">4 members</span>
+        </div>
+        <div class="constraint-item">
+          <span>Gender Balance:</span
+          ><span id="summaryGender">No constraints</span>
+        </div>
+        <div class="constraint-item">
+          <span>Branch Mix:</span><span id="summaryBranch">Mixed branches</span>
+        </div>
+        <div class="constraint-item">
+          <span>Estimated Teams:</span><span id="summaryTeams">0 teams</span>
+        </div>
+      </div>
+
+      <div class="btn-group">
+        <button class="btn btn-primary" id="generateBtn">Generate Teams</button>
+        <button class="btn btn-secondary" id="resetBtn">Reset Settings</button>
+        <button class="btn btn-warning" id="editCaptainsBtn">
+          Edit Captains
+        </button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="preview-header">
+        <h3 class="card-title">Team Preview</h3>
+        <div style="display: flex; gap: 10px">
+          <button class="btn btn-success" id="publishBtn" disabled>
+            Publish to Students
+          </button>
+        </div>
+      </div>
+
+      <div
+        id="loadingIndicator"
+        style="display: none; text-align: center; padding: 40px"
+      >
+        <div style="font-size: 48px; margin-bottom: 15px">⏳</div>
+        <p>Loading students data...</p>
+      </div>
+
+      <div id="teamPreviewContainer">
+        <div class="empty-state">
+          <p>
+            No teams generated yet.<br />Configure settings above and click
+            "Generate Teams".
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <div
+  id="captainModal"
+  style="
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+  "
+>
+  <div
+    style="
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 80vh;
+      overflow-y: auto;
+    "
+  >
+    <h3 style="margin-bottom: 15px">Edit Captains</h3>
+
+    <div style="margin-bottom: 20px">
+      <h4>Make New Captain:</h4>
+      <select
+        id="studentSelect"
+        class="form-control"
+        style="margin-bottom: 10px"
+      >
+        <option value="">Select a student...</option>
+      </select>
+      <button
+        class="btn btn-primary"
+        id="addCaptainBtn"
+        style="width: 100%"
+      >
+        Add as Captain
+      </button>
+    </div>
+
+    <div style="margin-bottom: 15px">
+      <h4>Current Captains:</h4>
+      <div id="currentCaptainsList" style="margin: 10px 0; max-height: 300px; overflow-y: auto;"></div>
+    </div>
+
+    <div class="btn-group" style="margin-top: 20px; display: flex; justify-content: space-between;">
+      <button class="btn btn-secondary" id="closeModalBtn">Cancel</button>
+      <button class="btn btn-success" id="saveCaptainsBtn">Save Changes</button>
+    </div>
+  </div>
+</div>
+    <!-- 
+    <script>
+        const teamSizeSlider = document.getElementById('teamSize');
+        const teamSizeValue = document.getElementById('teamSizeValue');
+        teamSizeSlider.addEventListener('input', (e) => {
+            teamSizeValue.textContent = e.target.value;
+            updateSummary();
+        });
+
+        document.querySelectorAll('.algorithm-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.algorithm-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+                updateSummary();
+            });
+        });
+
+        document.getElementById('mixBranches').addEventListener('change', (e) => {
+            if (e.target.checked) document.getElementById('sameBranch').checked = false;
+            updateSummary();
+        });
+        document.getElementById('sameBranch').addEventListener('change', (e) => {
+            if (e.target.checked) document.getElementById('mixBranches').checked = false;
+            updateSummary();
+        });
+
+        function updateSummary() {
+            document.getElementById('summarySize').textContent = teamSizeSlider.value + ' members';
+            const minM = document.getElementById('minMale').value || 0;
+            const minF = document.getElementById('minFemale').value || 0;
+            document.getElementById('summaryGender').textContent = (minM > 0 || minF > 0) 
+                ? `Min ${minM}M / ${minF}F` : 'No constraints';
+            document.getElementById('summaryBranch').textContent = document.getElementById('sameBranch').checked 
+                ? 'Same branch' : 'Mixed branches';
+            const algo = document.querySelector('.algorithm-card.selected');
+            document.getElementById('summaryAlgo').textContent = algo ? algo.querySelector('strong').textContent : 'Balanced';
+        }
+
+        document.querySelectorAll('input').forEach(input => input.addEventListener('change', updateSummary));
+        updateSummary();
+    </script> -->
+
+    <script src="scripts/teamgen.js"></script>
+    <script src="../firestore.js"></script>
+  </body>
+</html>

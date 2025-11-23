@@ -9,7 +9,7 @@ if (!currentUser) {
   const hasCompletedSecondStep = currentUser.completedSecondStep;
   const isadmin = currentUser.isAdmin;
   if (isadmin) {
-    window.location.href = "admin.html";
+    window.location.href = "dashboard.html";
   } else {
     if (!hasCompletedSecondStep) {
       window.location.href = "index.html";} 

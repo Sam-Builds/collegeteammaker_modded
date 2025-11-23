@@ -9,15 +9,17 @@
       href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=M+PLUS+1p:wght@300;400;500;700&display=swap"
       rel="stylesheet"
     />
-         <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
   </head>
   <body>
     <div class="container">
       <div class="user-info">
         <span id="welcomeUser"></span>
+        <button onclick="goToDashboard()" class="dashboard-btn">
+          ダッシュボード (Dashboard)
+        </button>
         <button onclick="logout()" class="logout-btn">
           ログアウト (Logout)
         </button>
@@ -213,24 +215,21 @@
         window.location.href = "login.html";
       } else {
         try {
-            const username = currentUser.username;
-            const userData = JSON.parse(
-              localStorage.getItem("user_" + username)
-            );
-            const hasCompletedSecondStep = currentUser.completedSecondStep;
-            const isadmin = currentUser.isAdmin;
-            if (isadmin) {
-              window.location.href = "admin.html";
+          const username = currentUser.username;
+          const userData = JSON.parse(localStorage.getItem("user_" + username));
+          const hasCompletedSecondStep = currentUser.completedSecondStep;
+          const isadmin = currentUser.isAdmin;
+          if (isadmin) {
+            window.location.href = "dashboard.html";
+          } else {
+            if (hasCompletedSecondStep) {
+              window.location.href = "signupprocess.html";
             } else {
-              if (hasCompletedSecondStep) {
-                window.location.href = "signupprocess.html";
-              } else {
-                document.getElementById(
-                  "welcomeUser"
-                ).textContent = `ようこそ (Welcome), ${currentUser.username}!`;
-              }
+              document.getElementById(
+                "welcomeUser"
+              ).textContent = `ようこそ (Welcome), ${currentUser.username}!`;
             }
-          
+          }
         } catch (error) {
           console.error("Error retrieving user data:", error);
           window.location.href = "login.html";
@@ -241,10 +240,10 @@
         localStorage.removeItem("currentUser");
         firebase.auth().signOut();
         window.location.href = "login.html";
-        
-
       }
-
+      function goToDashboard() {
+        window.location.href = "dashboard.html";
+      }
       // Add event listener after page loads
       document.addEventListener("DOMContentLoaded", function () {
         const generateBtn = document.getElementById("generateLinkBtn");
@@ -286,7 +285,7 @@
         }
       });
     </script>
-        <script src="firestore.js"></script>
+    <script src="firestore.js"></script>
 
     <script src="script.js"></script>
   </body>

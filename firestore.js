@@ -1,5 +1,7 @@
-const supabaseUrl = window.CONFIG?.SUPABASE_URL ;
-const supabaseAnonKey = window.CONFIG?.SUPABASE_ANON_KEY;
+const supabaseUrl = "https://fbaquxyjyaofihsewgye.supabase.co";
+const supabaseAnonKey = "sb_publishable_QWJxYgcHFyBLgldVSe9Xqw_Qsfs2Vwp";
+
+
 let isFetchingUserData = false;
 let pendingUserFetch = null;
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);

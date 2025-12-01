@@ -1,285 +1,288 @@
-const supabaseUrl = "https://fbaquxyjyaofihsewgye.supabase.co";
-const supabaseAnonKey = "sb_publishable_QWJxYgcHFyBLgldVSe9Xqw_Qsfs2Vwp";
+// const supabaseUrl = "https://fbaquxyjyaofihsewgye.supabase.co";
+// const supabaseAnonKey = "sb_publishable_QWJxYgcHFyBLgldVSe9Xqw_Qsfs2Vwp";
 
 
-let isFetchingUserData = false;
-let pendingUserFetch = null;
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
+// let isFetchingUserData = false;
+// let pendingUserFetch = null;
+// const supabaseClient = supabase.createClient(supabaseUrl, supabaseAnonKey);
 
-function getSupabaseClient() {
-  return supabaseClient;
-}
+// function getSupabaseClient() {
+//   return supabaseClient;
+// }
 
-let currentUserData = null;
+// let currentUserData = null;
 
-const ALLOWED_PAGES = {
-  admin: [
-    'dashboard.html',
-    'team-generation.html',
-    'settings.html',
-    'team-manage.html',
-    'student-management.html'
-  ],
-  student: [
-    'dashboard.html',
-    'my-team.html',
-    'profile.html',
-    'courses.html',
-    'assignments.html'
-  ],
-  unverified: [
-    'signupprocess.html',
-    'profile.html'
-  ],
-  public: [
-    'login.html',
-    'forgot-password.html'
-  ]
-};
+// const ALLOWED_PAGES = {
+//   admin: [
+//     'dashboard.html',
+//     'team-generation.html',
+//     'settings.html',
+//     'team-manage.html',
+//     'student-management.html'
+//   ],
+//   student: [
+//     'dashboard.html',
+//     'my-team.html',
+//     'profile.html',
+//     'courses.html',
+//     'assignments.html'
+//   ],
+//   unverified: [
+//     'signupprocess.html',
+//     'profile.html'
+//   ],
+//   public: [
+//     'login.html',
+//     'forgot-password.html'
+//   ]
+// };
 
-function getCurrentPage() {
-  return window.location.pathname.split('/').pop() || 'index.html';
-}
+// function getCurrentPage() {
+//   return window.location.pathname.split('/').pop() || 'index.html';
+// }
 
-function isPageAllowed(userType, page) {
-  return ALLOWED_PAGES[userType]?.includes(page) || false;
-}
+// function isPageAllowed(userType, page) {
+//   return ALLOWED_PAGES[userType]?.includes(page) || false;
+// }
 
-function getUserType() {
-  if (!currentUserData) return 'public';
+// function getUserType() {
+//   if (!currentUserData) return 'public';
   
-  if (currentUserData.isAdmin) return 'admin';
+//   if (currentUserData.isAdmin) return 'admin';
   
-  const needsSecondStep = !currentUserData.admissionNumber || 
-                         currentUserData.admissionNumber === "";
+//   const needsSecondStep = !currentUserData.admissionNumber || 
+//                          currentUserData.admissionNumber === "";
   
-  if (needsSecondStep || !currentUserData.verified) return 'unverified';
+//   if (needsSecondStep || !currentUserData.verified) return 'unverified';
   
-  return 'student';
-}
+//   return 'student';
+// }
 
-function shouldRedirect() {
-  const currentPage = getCurrentPage();
-  const userType = getUserType();
+// function shouldRedirect() {
+//   const currentPage = getCurrentPage();
+//   const userType = getUserType();
   
-  if (currentPage === 'login.html') {
-    if (userType !== 'public') {
+//   if (currentPage === 'login.html') {
+//     if (userType !== 'public') {
 
-      if (userType === 'unverified') {
-        return 'signupprocess.html';
-      } else {
-        return 'dashboard.html';
-      }
-    }
-    return false;
-  }
+//       if (userType === 'unverified') {
+//         return 'signupprocess.html';
+//       } else {
+//         return 'dashboard.html';
+//       }
+//     }
+//     return false;
+//   }
   
-  if (currentPage === 'signupprocess.html') {
-    if (userType === 'public') {
-      return 'login.html'; 
-    }
-    if (userType !== 'unverified') {
-      return getDefaultPageForUserType(); 
-    }
-    return false; 
-  }
+//   if (currentPage === 'signupprocess.html') {
+//     if (userType === 'public') {
+//       return 'login.html'; 
+//     }
+//     if (userType !== 'unverified') {
+//       return getDefaultPageForUserType(); 
+//     }
+//     return false; 
+//   }
   
-  if (isPageAllowed('public', currentPage)) {
-    return false;
-  }
+//   if (isPageAllowed('public', currentPage)) {
+//     return false;
+//   }
   
-  return !isPageAllowed(userType, currentPage) ? getDefaultPageForUserType() : false;
-}
+//   return !isPageAllowed(userType, currentPage) ? getDefaultPageForUserType() : false;
+// }
 
-function redirectToAllowedPage() {
-  const redirectTo = shouldRedirect();
-  const currentPage = getCurrentPage();
+// function redirectToAllowedPage() {
+//   const redirectTo = shouldRedirect();
+//   const currentPage = getCurrentPage();
   
-  if (redirectTo && currentPage !== redirectTo) {
-    console.log(`Redirecting from ${currentPage} to ${redirectTo}`);
-    window.location.href = redirectTo;
-  }
-}
+//   if (redirectTo && currentPage !== redirectTo) {
+//     console.log(`Redirecting from ${currentPage} to ${redirectTo}`);
+//     window.location.href = redirectTo;
+//   }
+// }
 
-function getDefaultPageForUserType() {
-  const userType = getUserType();
+// function getDefaultPageForUserType() {
+//   const userType = getUserType();
   
-  switch (userType) {
-    case 'admin':
-      return 'dashboard.html';
-    case 'student':
-      return 'dashboard.html';
-    case 'unverified':
-      return 'signupprocess.html';
-    default:
-      return 'login.html';
-  }
-}
+//   switch (userType) {
+//     case 'admin':
+//       return 'dashboard.html';
+//     case 'student':
+//       return 'dashboard.html';
+//     case 'unverified':
+//       return 'signupprocess.html';
+//     default:
+//       return 'login.html';
+//   }
+// }
 
-async function initializeAuth() {
-  try {
-    console.log("=== Initializing Auth ===");
+// async function initializeAuth() {
+//   try {
+//     console.log("=== Initializing Auth ===");
     
-    await new Promise(resolve => setTimeout(resolve, 1000));
+//     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+//     const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
     
-    if (sessionError) {
-      console.error("Session error:", sessionError);
-      clearAuthData();
-      return;
-    }
+//     if (sessionError) {
+//       console.error("Session error:", sessionError);
+//       clearAuthData();
+//       return;
+//     }
 
-    console.log("Session found:", !!session);
+//     console.log("Session found:", !!session);
 
-    if (session && session.user) {
-      console.log("User ID from session:", session.user.id);
+//     if (session && session.user) {
+//       console.log("User ID from session:", session.user.id);
       
-      const storedUser = localStorage.getItem("currentUser");
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        if (userData.id === session.user.id) {
-          currentUserData = userData;
-          console.log("Using cached user data");
+//       const storedUser = localStorage.getItem("currentUser");
+//       if (storedUser) {
+//         const userData = JSON.parse(storedUser);
+//         if (userData.id === session.user.id) {
+//           currentUserData = userData;
+//           console.log("Using cached user data");
           
-          if (shouldRedirect()) {
-            setTimeout(() => redirectToAllowedPage(), 500);
-          }
-          return;
-        }
-      }
+//           if (shouldRedirect()) {
+//             setTimeout(() => redirectToAllowedPage(), 500);
+//           }
+//           return;
+//         }
+//       }
       
-      await new Promise(resolve => setTimeout(resolve, 500));
-      if (!currentUserData) {
-        await fetchAndStoreUserData(session.user.id);
-      }
-    } else {
-      console.log("No active session found");
-      clearAuthData();
+//       await new Promise(resolve => setTimeout(resolve, 500));
+//       if (!currentUserData) {
+//         await fetchAndStoreUserData(session.user.id);
+//       }
+//     } else {
+//       console.log("No active session found");
+//       clearAuthData();
       
-      if (shouldRedirect()) {
-        setTimeout(() => redirectToAllowedPage(), 500);
-      }
-    }
-  } catch (error) {
-    console.error("Error initializing auth:", error);
-    clearAuthData();
-  }
-}
+//       if (shouldRedirect()) {
+//         setTimeout(() => redirectToAllowedPage(), 500);
+//       }
+//     }
+//   } catch (error) {
+//     console.error("Error initializing auth:", error);
+//     clearAuthData();
+//   }
+// }
 
-function handlePostLoginRedirect() {
-  const userType = getUserType();
-  const currentPage = getCurrentPage();
+// function handlePostLoginRedirect() {
+//   const userType = getUserType();
+//   const currentPage = getCurrentPage();
   
-  // Only redirect if we're still on login page after successful login
-  if (currentPage === 'login.html' && userType !== 'public') {
-    setTimeout(() => {
-      redirectToAllowedPage();
-    }, 1000);
-  }
-}
+//   // Only redirect if we're still on login page after successful login
+//   if (currentPage === 'login.html' && userType !== 'public') {
+//     setTimeout(() => {
+//       redirectToAllowedPage();
+//     }, 1000);
+//   }
+// }
 
-async function fetchAndStoreUserData(userId) {
-  if (isFetchingUserData) {
-    console.log("User data fetch already in progress, waiting...");
-    return pendingUserFetch;
-  }
+// async function fetchAndStoreUserData(userId) {
+//   if (isFetchingUserData) {
+//     console.log("User data fetch already in progress, waiting...");
+//     return pendingUserFetch;
+//   }
 
-  isFetchingUserData = true;
+//   isFetchingUserData = true;
   
-  try {
-    pendingUserFetch = (async () => {
-      console.log("Fetching user data for:", userId);
+//   try {
+//     pendingUserFetch = (async () => {
+//       console.log("Fetching user data for:", userId);
       
-      const { data, error } = await window.supabase
-        .from("Users")
-        .select("*")
-        .eq("uuid", userId)
-        .single();
+//       const { data, error } = await window.supabase
+//         .from("Users")
+//         .select("*")
+//         .eq("uuid", userId)
+//         .single();
 
-      console.log("Query completed, data:", data);
+//       console.log("Query completed, data:", data);
       
-      if (error) throw error;
-      if (!data) throw new Error("User not found in database");
+//       if (error) throw error;
+//       if (!data) throw new Error("User not found in database");
 
-      currentUserData = data;
+//       currentUserData = data;
 
-      const needsSecondStep =
-        !currentUserData.isAdmin &&
-        (!currentUserData.admissionNumber ||
-          currentUserData.admissionNumber === "");
+//       const needsSecondStep =
+//         !currentUserData.isAdmin &&
+//         (!currentUserData.admissionNumber ||
+//           currentUserData.admissionNumber === "");
 
-      localStorage.setItem(
-        "currentUser",
-        JSON.stringify({
-          id: userId,
-          ...currentUserData,
-          isAdmin: currentUserData.isAdmin || false,
-          completedSecondStep: needsSecondStep,
-        })
-      );
+//       localStorage.setItem(
+//         "currentUser",
+//         JSON.stringify({
+//           id: userId,
+//           ...currentUserData,
+//           isAdmin: currentUserData.isAdmin || false,
+//           completedSecondStep: needsSecondStep,
+//         })
+//       );
 
-      console.log("User data fetched and stored in localStorage");
-  handlePostLoginRedirect();
+//       console.log("User data fetched and stored in localStorage");
+//   handlePostLoginRedirect();
 
-      if (shouldRedirect()) {
-        redirectToAllowedPage();
-      }
+//       if (shouldRedirect()) {
+//         redirectToAllowedPage();
+//       }
       
-      return data;
-    })();
+//       return data;
+//     })();
 
-    return await pendingUserFetch;
-  } finally {
-    isFetchingUserData = false;
-    pendingUserFetch = null;
-  }
-}
+//     return await pendingUserFetch;
+//   } finally {
+//     isFetchingUserData = false;
+//     pendingUserFetch = null;
+//   }
+// }
 
-function clearAuthData() {
-  localStorage.removeItem("currentUser");
-  Object.keys(localStorage).forEach((key) => {
-    if (key.startsWith("user_")) {
-      localStorage.removeItem(key);
-    }
-  });
-  currentUserData = null;
-}
+// function clearAuthData() {
+//   localStorage.removeItem("currentUser");
+//   Object.keys(localStorage).forEach((key) => {
+//     if (key.startsWith("user_")) {
+//       localStorage.removeItem(key);
+//     }
+//   });
+//   currentUserData = null;
+// }
 
-function redirectToAllowedPage() {
-  const defaultPage = getDefaultPageForUserType();
-  const currentPage = getCurrentPage();
+// function redirectToAllowedPage() {
+//   const defaultPage = getDefaultPageForUserType();
+//   const currentPage = getCurrentPage();
   
-  if (currentPage !== defaultPage) {
-    window.location.href = defaultPage;
-  }
-}
+//   if (currentPage !== defaultPage) {
+//     window.location.href = defaultPage;
+//   }
+// }
 
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  console.log("Auth state changed:", event, "Session:", !!session);
+// supabaseClient.auth.onAuthStateChange(async (event, session) => {
+//   console.log("Auth state changed:", event, "Session:", !!session);
   
-  if (event === "INITIAL_SESSION" && session) {
-    console.log("Handling INITIAL_SESSION");
-    await fetchAndStoreUserData(session.user.id);
-  }
-  else if (event === "SIGNED_OUT") {
-    console.log("User signed out");
-    clearAuthData();
-    redirectToAllowedPage();
-  }
-  else if (event === "TOKEN_REFRESHED" && session) {
-    console.log("Token refreshed");
-    await fetchAndStoreUserData(session.user.id);
-  }
-});
+//   if (event === "INITIAL_SESSION" && session) {
+//     console.log("Handling INITIAL_SESSION");
+//     await fetchAndStoreUserData(session.user.id);
+//   }
+//   else if (event === "SIGNED_OUT") {
+//     console.log("User signed out");
+//     clearAuthData();
+//     redirectToAllowedPage();
+//   }
+//   else if (event === "TOKEN_REFRESHED" && session) {
+//     console.log("Token refreshed");
+//     await fetchAndStoreUserData(session.user.id);
+//   }
+// });
 
-document.addEventListener("DOMContentLoaded", function () {
-  initializeAuth();
-});
+// document.addEventListener("DOMContentLoaded", function () {
+//   initializeAuth();
+// });
 
-window.supabase = supabaseClient;
-window.getSupabaseClient = getSupabaseClient;
-window.clearAuthData = clearAuthData;
-window.initializeAuth = initializeAuth;
-window.getUserType = getUserType;
-window.isPageAllowed = isPageAllowed;
+// window.supabase = supabaseClient;
+// window.getSupabaseClient = getSupabaseClient;
+// window.clearAuthData = clearAuthData;
+// window.initializeAuth = initializeAuth;
+// window.getUserType = getUserType;
+// window.isPageAllowed = isPageAllowed;
+
+
+window.location.replace("https://greekgod14.github.io/collegeteammaker.github.io/");
